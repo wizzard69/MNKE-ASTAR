@@ -22,6 +22,8 @@ public class grid : MonoBehaviour
         CreateGrid();
     }
 
+    public List<node> path;
+
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
@@ -37,6 +39,14 @@ public class grid : MonoBehaviour
                 if (playerNode == n)
                 {
                     Gizmos.color = Color.green;
+                }
+
+                if (path != null)
+                {
+                    if (path.Contains(n))
+                    {
+                        Gizmos.color = Color.black;
+                    }
                 }
 
                 Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
@@ -57,7 +67,7 @@ public class grid : MonoBehaviour
 
                 bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
 
-                _grid[x, y] = new node(walkable, worldPoint);
+                _grid[x, y] = new node(walkable, worldPoint, x, y);
             }
         }
     }
@@ -74,5 +84,31 @@ public class grid : MonoBehaviour
         int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
 
         return _grid[x, y];
+    }
+
+    public List<node> GetNeighbors(node _node)
+    {
+        List<node> neighbors = new List<node>();
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0)
+                {
+                    continue;
+                }
+
+                int checkX = _node.gridX + x;
+                int checkY = _node.gridY + y;
+
+                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                {
+                    neighbors.Add(_grid[checkX, checkY]);
+                }
+            }
+        }
+
+        return neighbors;
     }
 }
